@@ -1,7 +1,9 @@
-import logo from "./logo.svg";
 import "./App.css";
 import { useEffect, useState } from "react";
 import { history, tableData as TableNetworkData } from "./constants";
+import Plot from 'react-plotly.js';
+// import Skeleton from 'react-loading-skeleton'
+// import 'react-loading-skeleton/dist/skeleton.css'
 
 function sleep(milliseconds) {
   const date = Date.now();
@@ -11,23 +13,10 @@ function sleep(milliseconds) {
   } while (currentDate - date < milliseconds);
 }
 
-function plotRecord(prices) {
-  const xArray = new Array(30).fill().map((_, i) => i + 1);
-  // Define Data
-  const data = [{ x: xArray, y: prices, mode: "lines" }];
-
-  //Define Layout
-  const layout = {
-    title: "History of past 30 days",
-  };
-
-  window?.Plotly?.newPlot("myPlot", data, layout);
-}
-
 function App() {
   const [ selectedId, setSelectedId ] = useState('');
   const [tableData, setTableData] = useState([]);
-  const [plotReady, setPlotReady] = useState(false);
+  const [plotData, setPlotData] = useState([]);
 
   useEffect(() => {
     async function getTableData() {
@@ -35,7 +24,7 @@ function App() {
       //   "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=en"
       // );
       // const json = await data.json();
-      const json = await new Promise((resolve)=>setTimeout(()=>resolve(TableNetworkData),5000))
+      const json = await new Promise((resolve)=>setTimeout(()=>resolve(TableNetworkData),1000))
       setTableData(json)
       setSelectedId(json[0].id);
     }
@@ -49,12 +38,15 @@ function App() {
       // );
       // const json = await data.json();
 
-      const json = await new Promise((resolve)=>setTimeout(()=>resolve(history[selectedId]||{}),5000))
-      // sleep(5000);
+      const json = await new Promise((resolve)=>setTimeout(()=>resolve(history[selectedId]||{}),0))
+      sleep(3000);
     
       const pr = json.prices?.map((p) => p[1]);
+
+      const xArray = new Array(30).fill().map((_, i) => i + 1);
+      const plotDataArray = [{ x: xArray, y: pr, mode: "lines" }];
     
-      plotRecord(pr);
+      setPlotData(plotDataArray)
     }
 
     if(selectedId!==""){
@@ -65,17 +57,21 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Crypto Prices List</h1>
-      {/* <div style={{ height: "100px", width: "700px", display:plotReady?"none":"block" }}></div> */}
-      <div id="myPlot" style={{ width: "100%", maxWidth: "700px" }}></div>
+      {/* <h1>Crypto Prices List</h1> */}
+      {plotData.length>0 ? <Plot
+        data={plotData}
+        layout={ {width: 700, height: 450,title: 'History of past 30 days'} }
+      />:(<></>)}
+      {/* (<Skeleton width={700} height={450}/>)} */}
       <table id="crypto-table">
+        <tbody>
         <tr>
           <th>Coin</th>
-          <th>Current price</th>
-          <th>History</th>
+          <th>Price</th>
+          <th>Trend</th>
         </tr>
         {tableData.length ? (
-          tableData.map(({ id, name, current_price }) => (
+          tableData.slice(0,5).map(({ id, name, current_price }) => (
             <tr key={id}>
               <td>
                 <h3>{name}</h3>
@@ -95,6 +91,7 @@ function App() {
             <td>-</td>
           </tr>
         )}
+        </tbody>
       </table>
     </div>
   );

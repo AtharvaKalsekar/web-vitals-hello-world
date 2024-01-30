@@ -3185,3 +3185,17 @@ export const history = {
     ],
   },
 };
+
+
+// function plotRecord(prices) {
+//   const xArray = new Array(30).fill().map((_, i) => i + 1);
+//   // Define Data
+//   const data = [{ x: xArray, y: prices, mode: "lines" }];
+
+//   //Define Layout
+//   const layout = {
+//     title: "History of past 30 days",
+//   };
+
+//   window?.Plotly?.newPlot("myPlot", data, layout);
+// }
