@@ -41,9 +41,11 @@ function App() {
       // const json = await data.json();
 
       const json = await new Promise((resolve) =>
-        setTimeout(() => resolve(history[selectedId] || {}), 0)
+        setTimeout(() => {
+          resolve(history[selectedId] || {})
+          sleep(3000);
+        }, 500)
       );
-      sleep(3000);
 
       const pr = json.prices?.map((p) => p[1]);
 
@@ -60,7 +62,6 @@ function App() {
 
   return (
     <div className="App">
-      {/* <h1>Crypto Prices List</h1> */}
       {plotData.length > 0 ? (
         <Plot
           data={plotData}
@@ -69,7 +70,6 @@ function App() {
       ) : (
         <></>
       )}
-      {/* (<Skeleton width={700} height={450}/>)} */}
       <table id="crypto-table">
         <tbody>
           <tr>
